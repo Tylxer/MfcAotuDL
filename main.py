@@ -15,8 +15,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','MissTroubleXx':'128293943','ElouisePlease':'109903017'}
-status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'MissTroubleXx':0,'ElouisePlease':0}#0表示未下载，1表示正在下载
+models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061'}
+status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
