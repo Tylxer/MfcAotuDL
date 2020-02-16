@@ -15,8 +15,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061'}
-status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0}#0表示未下载，1表示正在下载
+models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483'}
+status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
@@ -148,6 +148,7 @@ def maindown(url,model):
             if not downurl.empty():     
                 savenum = savenum + tempnum
                 print('开始下载'+ model)
+                requests.post(api+model+'开始下载')
                 sleepnum = 0
                 for l in range(2):
                     d = download(downurl,file)
@@ -158,21 +159,20 @@ def maindown(url,model):
                     gLock.acquire()
                     status[model] = 0
                     gLock.release()
+                    requests.post(api+model+'结束下载开始合并')
                     now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                    cmd = 'ffmegp  -f concat -i '+ file + 'filelist.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
+                    cmd = 'ffmpeg  -f concat -i '+ file + 'filelist.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                     result = os.system(cmd)
-                    shutil.rmtree(file, ignore_errors=True)
                     break
                 else:
                     sleepnum  = sleepnum + 1
                     time.sleep(3)
         else:
+            shutil.rmtree(file, ignore_errors=True)
             print(model + '无下载文件')
             break
         
-    #cmd = 'ffmegp  -f concat -i filelist.txt -vcodec copy -acodec copy output.mp4'
-    #result = subprocess.Popen(cmd)
-    #print(result)
+
 
 def download(que,file):#下载程序
     while True:
@@ -213,6 +213,7 @@ if __name__ == '__main__':
         temppath = '/root/temp/'
         saveparh = '/root/video/'
     remote = 'wss://xchat72.myfreecams.com/fcsl'
+    api = "https://sc.ftqq.com/SCU84034T4390e074a26e7a7ed66427692ac0a7b65e48f3b1d85ee.send?text="
     creat_file(temppath)
     creat_file(saveparh)
     try:
@@ -226,7 +227,7 @@ if __name__ == '__main__':
                     threads.append(d)
                 for d in threads:
                     d.start()
-            asyncio.sleep(600)
+            time.sleep(600)
             
 
     except KeyboardInterrupt as exc:
