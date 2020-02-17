@@ -142,14 +142,14 @@ def maindown(url,model):
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     creat_file(file)
+    requests.post(api+model+'开始下载')
     while True:
         tempnum = []
         downurl,tempnum = geturl(url,max(savenum),file)  
         if downurl != None:
             if not downurl.empty():     
                 savenum = savenum + tempnum
-                print('开始下载'+ model)
-                requests.post(api+model+'开始下载')
+                print('正在下载'+ model)
                 sleepnum = 0
                 threads = []
                 for l in range(2):
