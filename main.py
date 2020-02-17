@@ -106,7 +106,7 @@ async def startup(uri):
                                 print(res)
                         else:
                             print(model + ' is offline')
-                    return ol_model,ol_url
+                return ol_model,ol_url
                 break
 
 
