@@ -15,8 +15,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483'}
-status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0}#0表示未下载，1表示正在下载
+models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483','SweetieM':'117990611'}
+status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0,'SweetieM':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
@@ -78,6 +78,7 @@ async def startup(uri):
                             if res.status_code == 200 and status[model] == 0:
                                 print(model + ' is online')
                                 chunklist = dels(res.text.splitlines())
+                                url = ''
                                 for s in chunklist:
                                     if 'chunklist' in s:
                                         strlist = s.split('_')
@@ -88,7 +89,7 @@ async def startup(uri):
                                         else:
                                             url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/'+ s
                                             #url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_a_' + models.get(model) + '.f4v_mobile/'+ s
-                                if len(url) != 0:
+                                if 'http' in url:
                                     status[model] = 1
                                     ol_model.put(model)
                                     ol_url.put(url)
@@ -208,14 +209,14 @@ if __name__ == '__main__':
     sys = platform.system()
     if sys == "Windows":
         temppath = 'e:/temp/'
-        saveparh = 'e:/video/'
+        savepath = 'e:/video/'
     else:
         temppath = '/root/temp/'
-        saveparh = '/root/video/'
+        savepath = '/root/video/'
     remote = 'wss://xchat72.myfreecams.com/fcsl'
     api = "https://sc.ftqq.com/SCU84034T4390e074a26e7a7ed66427692ac0a7b65e48f3b1d85ee.send?text="
     creat_file(temppath)
-    creat_file(saveparh)
+    creat_file(savepath)
     try:
         while True:
             model_ol,url_ol = asyncio.get_event_loop().run_until_complete(startup(remote))
