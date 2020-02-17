@@ -5,9 +5,7 @@ import requests
 import os
 import time
 import urllib
-import urllib.parse
 import queue
-import logging
 import threading
 import platform
 import shutil
@@ -24,7 +22,7 @@ def creat_file(path):
         path1 = path + model
         if not os.path.isdir(path1):
             os.makedirs(path1)
-
+    
 
 async def startup(uri):
     strs = 'respkey'
@@ -141,7 +139,8 @@ def maindown(url,model):
     sleepnum = 0
     file = temppath + model + '/'
     file1 = savepath + model + '/'
-    creat_file(file)
+    if not os.path.isdir(file):
+        os.makedirs(file)
     requests.post(api+model+'开始下载')
     while True:
         tempnum = []
