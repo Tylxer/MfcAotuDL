@@ -109,7 +109,7 @@ async def startup(uri):
                 if not ol_model.empty():
                     return ol_model,ol_url
                 else:
-                    return None,None
+                    return ol_model,ol_url
                 break
 
 
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     try:
         while True:
             model_ol,url_ol = asyncio.get_event_loop().run_until_complete(startup(remote))
-            if model_ol != None and not model_ol.empty():
+            if not model_ol.empty():
                 threads = []
                 num = model_ol.qsize()
                 for i in range(num):
