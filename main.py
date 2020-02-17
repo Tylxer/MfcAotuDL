@@ -15,8 +15,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483','SweetieM':'117990611'}
-status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0,'SweetieM':0}#0表示未下载，1表示正在下载
+models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483','GingerMFC':'116214004'}
+status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0,'GingerMFC':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
@@ -46,6 +46,7 @@ async def startup(uri):
                 mes_json = json.loads(mes)
                 fcw_url = 'https://www.myfreecams.com/php/FcwExtResp.php?type=14&opts=256&respkey=' + str(mes_json["respkey"]) + '&serv=' + str(mes_json["serv"])
                 print(fcw_url)
+                print(time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime()))
                 while True:
                     fcw_data = request_get(fcw_url)
                     if fcw_data.status_code == 200:
@@ -151,9 +152,11 @@ def maindown(url,model):
                 savenum = savenum + tempnum
                 print('正在下载'+ model)
                 sleepnum = 0
-                threads = []
+                ThreadList = []
                 for l in range(2):
                     d = download(downurl,file)
+                    ThreadList.append(d)
+                for d in ThreadList:
                     d.start()
             else:
                 if sleepnum == 5:
