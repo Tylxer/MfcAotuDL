@@ -163,7 +163,7 @@ def maindown(url,model):
                 gLock.release()
                 requests.post(api+model+'结束下载开始合并')
                 now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                cmd = 'ffmpeg  -f concat -i '+ file + 'filelist.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
+                cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                 result = os.system(cmd)
                 break
             else:
@@ -201,8 +201,8 @@ def findnum(url):#获取TS链接的序号num
 
 def request_get(url):
     s = requests.Session()
-    s.mount('http://', HTTPAdapter(max_retries=2))
-    s.mount('https://', HTTPAdapter(max_retries=2))
+    s.mount('http://', HTTPAdapter(max_retries=3))
+    s.mount('https://', HTTPAdapter(max_retries=3))
     r = s.get(url)
     return r
     
@@ -230,7 +230,7 @@ if __name__ == '__main__':
                     threads.append(d)
                 for d in threads:
                     d.start()
-            time.sleep(600)
+            time.sleep(300)
             
 
     except KeyboardInterrupt as exc:
