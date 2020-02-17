@@ -172,6 +172,7 @@ def maindown(url,model):
                 cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                 result = os.system(cmd)
                 del_file(file)
+                requests.post(api+model+'合并完成')
                 break
             else:
                 sleepnum  = sleepnum + 1
