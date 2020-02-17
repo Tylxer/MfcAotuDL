@@ -8,6 +8,7 @@ import urllib
 import queue
 import threading
 import platform
+import logging
 from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
