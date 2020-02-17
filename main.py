@@ -180,7 +180,7 @@ def maindown(url,model):
                     del_file(file)
                     requests.post(api+model+'合并完成')
                     break
-                elif sleepnum == 5 and not filenum:)
+                elif sleepnum == 5 and not filenum:
                     print('可能Temporarily Away')
                     break
                 else:
