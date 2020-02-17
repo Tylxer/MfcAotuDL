@@ -8,7 +8,6 @@ import urllib
 import queue
 import threading
 import platform
-import shutil
 from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
@@ -23,6 +22,14 @@ def creat_file(path):
         if not os.path.isdir(path1):
             os.makedirs(path1)
     
+def del_file(path):
+    for i in os.listdir(path):
+        path_file = os.path.join(path,i)
+        if os.path.isfile(path_file):
+            os.remove(path_file)
+        else:
+            del_file(path_file)
+
 
 async def startup(uri):
     strs = 'respkey'
@@ -139,11 +146,6 @@ def maindown(url,model):
     sleepnum = 0
     file = temppath + model + '/'
     file1 = savepath + model + '/'
-    if not os.path.isdir(file):
-        os.makedirs(file)
-    else:
-        shutil.rmtree(file,True)
-        os.makedirs(file)
     requests.post(api+model+'开始下载')
     while True:
         tempnum = []
@@ -168,7 +170,7 @@ def maindown(url,model):
                 now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
                 cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                 result = os.system(cmd)
-                shutil.rmtree(file,True)
+                del_file(file)
                 break
             else:
                 sleepnum  = sleepnum + 1
