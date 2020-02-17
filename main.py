@@ -13,8 +13,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483','GingerMFC':'116214004'}
-status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0,'GingerMFC':0}#0表示未下载，1表示正在下载
+models = {'Kati3kat':'119647139','VivianisHere':'114190318','FancyVikki':'121523305','AvrilDollX':'118968133','Mila_Poonis':'127545784','MissAlice_94':'110256061','OneSweetBae':'121723980','Virgin_Emma':'126192483'}
+status =  {'Kati3kat':0,'VivianisHere':0,'FancyVikki':0,'AvrilDollX':0,'Mila_Poonis':0,'MissAlice_94':0,'OneSweetBae':0,'Virgin_Emma':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
@@ -141,6 +141,9 @@ def maindown(url,model):
     file1 = savepath + model + '/'
     if not os.path.isdir(file):
         os.makedirs(file)
+    else:
+        shutil.rmtree(file,True)
+        os.makedirs(file)
     requests.post(api+model+'开始下载')
     while True:
         tempnum = []
@@ -165,6 +168,7 @@ def maindown(url,model):
                 now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
                 cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                 result = os.system(cmd)
+                shutil.rmtree(file,True)
                 break
             else:
                 sleepnum  = sleepnum + 1
