@@ -143,49 +143,49 @@ def maindown(url,model):
     filenum = []        
     file = temppath + model + '/'
     file1 = savepath + model + '/'
-    requests.post(api+model+'开始下载')
-    while True:
-        tempnum = []
-        downurl,tempnum = geturl(url,max(savenum))  
-        if tempnum:     
-            savenum = savenum + tempnum
-            print('正在下载'+ model)
-            sleepnum = 0
-            ThreadList = []
-            for l in range(2):
-                d = download(downurl,file)
-                ThreadList.append(d)
-            for d in ThreadList:
-                d.start()
-            for d in ThreadList:
-                d.join()
-                a = d.get_result()
-                filenum = filenum + a
-        else:
-            if sleepnum == 5 and filenum:
-                print('TS下载完成')
-                gLock.acquire()
-                status[model] = 0
-                gLock.release()
-                filenum.sort()
-                for i in filenum:
-                    with open(file + 'filetext.txt','a') as a:
-                        a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
-                requests.post(api+model+'结束下载开始合并')
-                now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
-                result = os.system(cmd)
-                print(result)
-                del_file(file)
-                requests.post(api+model+'合并完成')
-                break
-            elif sleepnum == 5 and not filenum:
-                requests.post(api+model+'m3u8无效')
-                print('可能Temporarily Away')
-                break
+    if request_get(url).status_code == 200:
+        requests.post(api+model+'开始下载')
+        while True:
+            tempnum = []
+            downurl,tempnum = geturl(url,max(savenum))  
+            if tempnum:     
+                savenum = savenum + tempnum
+                print('正在下载'+ model)
+                sleepnum = 0
+                ThreadList = []
+                for l in range(2):
+                    d = download(downurl,file)
+                    ThreadList.append(d)
+                for d in ThreadList:
+                    d.start()
+                for d in ThreadList:
+                    d.join()
+                    a = d.get_result()
+                    filenum = filenum + a
             else:
-                sleepnum  = sleepnum + 1
-                time.sleep(3)
+                if sleepnum == 5 and filenum:
+                    print('TS下载完成')
+                    gLock.acquire()
+                    status[model] = 0
+                    gLock.release()
+                    filenum.sort()
+                    for i in filenum:
+                        with open(file + 'filetext.txt','a') as a:
+                            a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
+                    requests.post(api+model+'结束下载开始合并')
+                    now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
+                    cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
+                    result = os.system(cmd)
+                    print(result)
+                    del_file(file)
+                    requests.post(api+model+'合并完成')
+                    break
+                elif sleepnum == 5 and not filenum:)
+                    print('可能Temporarily Away')
+                    break
+                else:
+                    sleepnum  = sleepnum + 1
+                    time.sleep(3)
         
 
 class download(threading.Thread):#下载程序
