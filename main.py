@@ -151,7 +151,7 @@ def maindown(url,model):
                 print('开始下载'+ model)
                 requests.post(api+model+'开始下载')
                 sleepnum = 0
-                print(downurl.queue)
+                threads = []
                 for l in range(2):
                     d = download(downurl,file)
                     d.start()
@@ -176,19 +176,24 @@ def maindown(url,model):
         
 
 
-def download(que,file):#下载程序
-    while True:
-        if not que.empty():
-            url = que.get()
-            print(url)
-            r = request_get(url)
-            if r.status_code == 200:
-                with open(file + str(findnum(url))  + '.ts','wb') as a:
-                    a.write(r.content)
+class download(threading.Thread):#下载程序
+    def __init__(self,que,file):
+        threading.Thread.__init__(self)
+        self.que = que
+        self.file = file
+    def run(self):
+        while True:
+            if not self.que.empty():
+                url = self.que.get()
+                r = request_get(url)
+                if r.status_code == 200:
+                    with open(self.file + str(findnum(url))  + '.ts','wb') as a:
+                        a.write(r.content)
+                    print('已下载' + str(findnum(url)))
+                else:
+                    print(url + 'TS文件' + str(r.status_code))
             else:
-                print(url  + '下载失败错误代码'+str(r.status_code))
-        else:
-            break
+                break
 
 
 
