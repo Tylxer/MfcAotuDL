@@ -151,6 +151,7 @@ def maindown(url,model):
                 print('开始下载'+ model)
                 requests.post(api+model+'开始下载')
                 sleepnum = 0
+                print(downurl.queue)
                 for l in range(2):
                     d = download(downurl,file)
                     d.start()
@@ -179,6 +180,7 @@ def download(que,file):#下载程序
     while True:
         if not que.empty():
             url = que.get()
+            print(url)
             r = request_get(url)
             if r.status_code == 200:
                 with open(file + str(findnum(url))  + '.ts','wb') as a:
