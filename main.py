@@ -123,10 +123,9 @@ def geturl(url,num,file):
                 savenum.append(currentnum)
                 with open(file + 'filetext.txt','a') as a:
                     a.write('file \''+ file + str(currentnum)  + '.ts\'' + '\n')
-        return downurl,savenum
     else:
         print(url+'m3u8列表已经失效,错误代码'+str(res.status_code))
-        return None,savenum
+    return downurl,savenum
 
 def dels(list):
     b = list[:]
@@ -147,37 +146,31 @@ def maindown(url,model):
     while True:
         tempnum = []
         downurl,tempnum = geturl(url,max(savenum),file)  
-        if downurl != None:
-            if not downurl.empty():     
-                savenum = savenum + tempnum
-                print('正在下载'+ model)
-                sleepnum = 0
-                ThreadList = []
-                for l in range(2):
-                    d = download(downurl,file)
-                    ThreadList.append(d)
-                for d in ThreadList:
-                    d.start()
-            else:
-                if sleepnum == 5:
-                    print('TS下载完成')
-                    gLock.acquire()
-                    status[model] = 0
-                    gLock.release()
-                    requests.post(api+model+'结束下载开始合并')
-                    now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                    cmd = 'ffmpeg  -f concat -i '+ file + 'filelist.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
-                    result = os.system(cmd)
-                    break
-                else:
-                    sleepnum  = sleepnum + 1
-                    time.sleep(3)
+        if not downurl.empty():     
+            savenum = savenum + tempnum
+            print('正在下载'+ model)
+            sleepnum = 0
+            ThreadList = []
+            for l in range(2):
+                d = download(downurl,file)
+                ThreadList.append(d)
+            for d in ThreadList:
+                d.start()
         else:
-            shutil.rmtree(file, ignore_errors=True)
-            print(model + '无下载文件')
-            break
+            if sleepnum == 5:
+                print('TS下载完成')
+                gLock.acquire()
+                status[model] = 0
+                gLock.release()
+                requests.post(api+model+'结束下载开始合并')
+                now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
+                cmd = 'ffmpeg  -f concat -i '+ file + 'filelist.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
+                result = os.system(cmd)
+                break
+            else:
+                sleepnum  = sleepnum + 1
+                time.sleep(3)
         
-
 
 class download(threading.Thread):#下载程序
     def __init__(self,que,file):
