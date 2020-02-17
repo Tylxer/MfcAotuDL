@@ -140,7 +140,7 @@ def maindown(url,model):
     print('准备下载'+model)
     savenum = [0]
     sleepnum = 0
-    filenum = []
+    filenum = []        
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     requests.post(api+model+'开始下载')
@@ -162,7 +162,7 @@ def maindown(url,model):
                 a = d.get_result()
                 filenum = filenum + a
         else:
-            if sleepnum == 5:
+            if sleepnum == 5 and filenum:
                 print('TS下载完成')
                 gLock.acquire()
                 status[model] = 0
@@ -175,8 +175,13 @@ def maindown(url,model):
                 now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
                 cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
                 result = os.system(cmd)
+                print(result)
                 del_file(file)
                 requests.post(api+model+'合并完成')
+                break
+            elif sleepnum == 5 and not filenum:
+                requests.post(api+model+'m3u8无效')
+                print('可能Temporarily Away')
                 break
             else:
                 sleepnum  = sleepnum + 1
