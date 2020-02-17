@@ -106,15 +106,12 @@ async def startup(uri):
                                 print(res)
                         else:
                             print(model + ' is offline')
-                if not ol_model.empty():
-                    return ol_model,ol_url
-                else:
                     return ol_model,ol_url
                 break
 
 
 
-def geturl(url,num,file):
+def geturl(url,num):
     downurl = queue.Queue()
     res = request_get(url)
     savenum = []
@@ -127,8 +124,6 @@ def geturl(url,num,file):
                 k = url[0:url.rfind('/') + 1] + i               
                 downurl.put(k)
                 savenum.append(currentnum)
-                with open(file + 'filetext.txt','a') as a:
-                    a.write('file \''+ file + str(currentnum)  + '.ts\'' + '\n')
     else:
         print(url+'m3u8列表已经失效,错误代码'+str(res.status_code))
     return downurl,savenum
@@ -145,13 +140,14 @@ def maindown(url,model):
     print('准备下载'+model)
     savenum = [0]
     sleepnum = 0
+    filenum = []
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     requests.post(api+model+'开始下载')
     while True:
         tempnum = []
-        downurl,tempnum = geturl(url,max(savenum),file)  
-        if not downurl.empty():     
+        downurl,tempnum = geturl(url,max(savenum))  
+        if tempnum:     
             savenum = savenum + tempnum
             print('正在下载'+ model)
             sleepnum = 0
@@ -161,12 +157,20 @@ def maindown(url,model):
                 ThreadList.append(d)
             for d in ThreadList:
                 d.start()
+            for d in ThreadList:
+                d.join()
+                a = d.get_result()
+                filenum = filenum + a
         else:
             if sleepnum == 5:
                 print('TS下载完成')
                 gLock.acquire()
                 status[model] = 0
                 gLock.release()
+                filenum.sort()
+                for i in filenum:
+                    with open(file + 'filetext.txt','a') as a:
+                        a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
                 requests.post(api+model+'结束下载开始合并')
                 now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
                 cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
@@ -185,19 +189,23 @@ class download(threading.Thread):#下载程序
         self.que = que
         self.file = file
     def run(self):
+        self.result = []
         while True:
             if not self.que.empty():
                 url = self.que.get()
                 r = request_get(url)
                 if r.status_code == 200:
-                    with open(self.file + str(findnum(url))  + '.ts','wb') as a:
+                    num = findnum(url)
+                    with open(self.file + str(num)  + '.ts','wb') as a:
                         a.write(r.content)
+                    self.result.append(num)
                     print('已下载' + str(findnum(url)))
                 else:
                     print(url + 'TS文件' + str(r.status_code))
             else:
                 break
-
+    def get_result(self):
+        return self.result
 
 
 def findnum(url):#获取TS链接的序号num
@@ -240,6 +248,5 @@ if __name__ == '__main__':
                     d.start()
             time.sleep(300)
             
-
     except KeyboardInterrupt as exc:
         logging.info('Quit.')
