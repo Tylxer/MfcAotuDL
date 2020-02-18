@@ -97,7 +97,6 @@ async def startup(uri):
                                             url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/'+ s
                                             #url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_a_' + models.get(model) + '.f4v_mobile/'+ s
                                 if 'http' in url:
-                                    status[model] = 1
                                     ol_model.put(model)
                                     ol_url.put(url)
                                 else:
@@ -144,7 +143,8 @@ def maindown(url,model):
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     if request_get(url).status_code == 200:
-        requests.post(api+model+'开始下载')
+        request_post(model,'开始下载')
+        status[model] = 1
         while True:
             tempnum = []
             downurl,tempnum = geturl(url,max(savenum))  
@@ -164,7 +164,7 @@ def maindown(url,model):
                     filenum = filenum + a
             else:
                 if sleepnum == 5 and filenum:
-                    print('TS下载完成')
+                    print(model+'下载完成')
                     gLock.acquire()
                     status[model] = 0
                     gLock.release()
@@ -172,13 +172,13 @@ def maindown(url,model):
                     for i in filenum:
                         with open(file + 'filetext.txt','a') as a:
                             a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
-                    requests.post(api+model+'结束下载开始合并')
+                    #request_post(model,'结束下载开始合并')
                     now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                    cmd = 'ffmpeg  -f concat -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
+                    cmd = 'ffmpeg  -f concat -safe 0 -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.ts'
                     result = os.system(cmd)
                     print(result)
                     del_file(file)
-                    requests.post(api+model+'合并完成')
+                    request_post(model,'合并完成')
                     break
                 elif sleepnum == 5 and not filenum:
                     print('可能Temporarily Away')
@@ -186,7 +186,8 @@ def maindown(url,model):
                 else:
                     sleepnum  = sleepnum + 1
                     time.sleep(3)
-        
+    else:
+        print('m3u8连接失败')        
 
 class download(threading.Thread):#下载程序
     def __init__(self,que,file):
@@ -226,7 +227,13 @@ def request_get(url):
     s.mount('https://', HTTPAdapter(max_retries=3))
     r = s.get(url)
     return r
-    
+
+def request_post(model,text):
+    try:
+        requests.post(api+model+text)
+    except:
+        print(model+text)
+        
 
 if __name__ == '__main__':
     sys = platform.system()
@@ -251,7 +258,7 @@ if __name__ == '__main__':
                     threads.append(d)
                 for d in threads:
                     d.start()
-            time.sleep(300)
+            time.sleep(600)
             
     except KeyboardInterrupt as exc:
         logging.info('Quit.')
