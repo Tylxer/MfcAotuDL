@@ -13,8 +13,8 @@ from aiowebsocket.converses import AioWebSocket
 from requests.adapters import HTTPAdapter
 
 
-models = {'SweetieM':'117990611','Ulla996':'123371138'}
-status =  {'SweetieM':0,'Ulla996':0}#0表示未下载，1表示正在下载
+models = {'Virgin_Emma':'126192483','Ulla996':'123371138'}
+status =  {'Virgin_Emma':0,'Ulla996':0}#0表示未下载，1表示正在下载
 gLock = threading.Lock()
 
 def creat_file(path):
@@ -143,12 +143,12 @@ def maindown(url,model):
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     if request_get(url).status_code == 200:
-        requests.post(api+model+'开始下载')
+        request_post(model,'开始下载')
         status[model] = 1
-        for p in range(4):
+        for p in range(30):
             tempnum = []
             downurl,tempnum = geturl(url,max(savenum))  
-            if tempnum:     
+            if tempnum:
                 savenum = savenum + tempnum
                 print('正在下载'+ model)
                 sleepnum = 0
@@ -162,24 +162,24 @@ def maindown(url,model):
                     d.join()
                     a = d.get_result()
                     filenum = filenum + a
-            else:
-                if filenum:
-                    print('TS下载完成')
-                    gLock.acquire()
-                    status[model] = 0
-                    gLock.release()
-                    filenum.sort()
-                    for i in filenum:
-                        with open(file + 'filetext.txt','a') as a:
-                            a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
-                    requests.post(api+model+'结束下载开始合并')
-                    now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-                    cmd = 'ffmpeg  -f concat -safe 0 -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.mp4'
-                    result = os.system(cmd)
-                    print(result)
-                    del_file(file)
-                    requests.post(api+model+'合并完成')
-                    break
+        if filenum:
+            print('TS下载完成')
+            gLock.acquire()
+            status[model] = 0
+            gLock.release()
+            filenum.sort()
+            for i in filenum:
+                with open(file + 'filetext.txt','a') as a:
+                    a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
+            #request_post(model,'结束下载开始合并')
+            now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
+            cmd = 'ffmpeg  -f concat -safe 0 -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.ts'
+            result = os.system(cmd)
+            print(result)
+            print('合并完成')
+            del_file(file)
+            request_post(model,'合并完成')
+            
     else:
         print('m3u8连接失败')        
 
@@ -221,6 +221,12 @@ def request_get(url):
     s.mount('https://', HTTPAdapter(max_retries=3))
     r = s.get(url)
     return r
+
+def request_post(model,text):
+    try:
+        requests.post(api+model+text)
+    except:
+        print(model+text)
     
 
 if __name__ == '__main__':
@@ -250,3 +256,4 @@ if __name__ == '__main__':
             
     except KeyboardInterrupt as exc:
         logging.info('Quit.')
+
