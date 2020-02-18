@@ -173,12 +173,12 @@ def maindown(url,model):
                         with open(file + 'filetext.txt','a') as a:
                             a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
                     #request_post(model,'结束下载开始合并')
-                    now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
+                    now = time.strftime("%Y-%m-%d-%H:%M", time.localtime())
                     cmd = 'ffmpeg  -f concat -safe 0 -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.ts'
                     result = os.system(cmd)
                     print(result)
                     del_file(file)
-                    request_post(model,'合并完成')
+                    request_post(model,'合并完成网址是mfc.lxgd.desifn/'+model+'/'+str(now) +'.ts')
                     break
                 elif sleepnum == 5 and not filenum:
                     print('可能Temporarily Away')
@@ -242,7 +242,7 @@ if __name__ == '__main__':
         savepath = 'e:/video/'
     else:
         temppath = '/root/temp/'
-        savepath = '/root/video/'
+        savepath = '/www/wwwroot/mfc.lxgd.design/'
     remote = 'wss://xchat72.myfreecams.com/fcsl'
     api = "https://sc.ftqq.com/SCU84034T4390e074a26e7a7ed66427692ac0a7b65e48f3b1d85ee.send?text="
     creat_file(temppath)
