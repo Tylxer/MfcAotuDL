@@ -76,10 +76,14 @@ async def startup(uri):
                                     break
                                 else:
                                     i = i + 1
-                            print(fcw_json["rdata"][i][0])
+                            #print(fcw_json["rdata"][i][0])
                             videoid = fcw_json["rdata"][i][6]
+                            print(str(videoid))
                             config_json = json.loads(config)
-                            videoser = config_json["h5video_servers"][str(videoid)]
+                            try:
+                                videoser = config_json["h5video_servers"][str(videoid)]
+                            except Exception as e:
+                                continue
                             playlisturl = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/playlist.m3u8'
                             res = request_get(playlisturl)
                             if res.status_code == 200 and status[model] == 0:
@@ -228,7 +232,7 @@ def request_get(url):
     r = s.get(url)
     return r
 
-def request_post(model,text):
+def request_post(model,text):#使用server酱推送微信
     try:
         requests.post(api+model+text)
     except:
@@ -244,7 +248,7 @@ if __name__ == '__main__':
         temppath = '/root/temp/'
         savepath = '/www/wwwroot/mfc.lxgd.design/'
     remote = 'wss://xchat72.myfreecams.com/fcsl'
-    api = "https://sc.ftqq.com/SCU84034T4390e074a26e7a7ed66427692ac0a7b65e48f3b1d85ee.send?text="
+    api = "https://sc.ftqq.com/SCU84034T4390e074a26e7a7ed66427692ac0a7b65e48f3b1d85ee.send?text="#server酱处获取
     creat_file(temppath)
     creat_file(savepath)
     try:
@@ -262,3 +266,6 @@ if __name__ == '__main__':
             
     except KeyboardInterrupt as exc:
         logging.info('Quit.')
+    
+    except Exception as e:
+        request_post('抛出异常','')
