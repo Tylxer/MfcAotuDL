@@ -137,51 +137,22 @@ def dels(list):
 
 def maindown(url,model):
     print('准备下载'+model)
-    savenum = [0]
-    sleepnum = 0
-    filenum = []        
     file = temppath + model + '/'
     file1 = savepath + model + '/'
     if request_get(url).status_code == 200:
         request_post(model,'开始下载')
         status[model] = 1
-        for p in range(30):
-            tempnum = []
-            downurl,tempnum = geturl(url,max(savenum))  
-            if tempnum:
-                savenum = savenum + tempnum
-                print('正在下载'+ model)
-                sleepnum = 0
-                ThreadList = []
-                for l in range(2):
-                    d = download(downurl,file)
-                    ThreadList.append(d)
-                for d in ThreadList:
-                    d.start()
-                for d in ThreadList:
-                    d.join()
-                    a = d.get_result()
-                    filenum = filenum + a
-        if filenum:
-            print('TS下载完成')
-            gLock.acquire()
-            status[model] = 0
-            gLock.release()
-            filenum.sort()
-            for i in filenum:
-                with open(file + 'filetext.txt','a') as a:
-                    a.write('file \''+ file + str(i)  + '.ts\'' + '\n')                    
-            #request_post(model,'结束下载开始合并')
-            now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
-            cmd = 'ffmpeg  -f concat -safe 0 -i '+ file + 'filetext.txt -vcodec copy -acodec copy '+ file1 + str(now) +'.ts'
-            result = os.system(cmd)
-            print(result)
-            print('合并完成')
-            del_file(file)
-            request_post(model,'合并完成')
+        print('正在下载'+ model)
+        print('TS下载完成')
+        now = time.strftime("%Y-%m-%d-%H_%M", time.localtime())
+        cmd = 'ffmpeg -safe 0 -i '+ url+' -vcodec copy -acodec copy '+ file1 + str(now) +'.ts'
+        result = os.system(cmd)
+        print(result)
+        status[model] = 0
+        request_post(model,'合并完成')
             
     else:
-        print('m3u8连接失败')        
+        print('m3u8连接失败')     
 
 class download(threading.Thread):#下载程序
     def __init__(self,que,file):
