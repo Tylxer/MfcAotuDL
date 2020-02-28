@@ -76,16 +76,28 @@ async def startup(uri):
                                     break
                                 else:
                                     i = i + 1
-                            #print(fcw_json["rdata"][i][0])
                             videoid = fcw_json["rdata"][i][6]
                             print(str(videoid))
                             config_json = json.loads(config)
-                            try:
+                            if str(videoid) in config_json['h5video_servers']:
                                 videoser = config_json["h5video_servers"][str(videoid)]
-                            except Exception as e:
+                                print(videoser+'1')
+                            elif str(videoid) in config_json["ngvideo_servers"]:
+                                videoser = config_json["ngvideo_servers"][str(videoid)]
+                                print(videoser+'2')
+                            elif str(videoid) in config_json["wzobs_servers"]:
+                                videoser = config_json["wzobs_servers"][str(videoid)]
+                                print(videoser+'3')
+                            else:
+                                print(model+'失败')
                                 continue
-                            playlisturl = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/playlist.m3u8'
+                            test = '.myfreecams.com/NxServer/ngrp:mfc_'
+                            playlisturl = 'https://' + videoser + test + models.get(model) + '.f4v_mobile/playlist.m3u8'
                             res = request_get(playlisturl)
+                            if 'http'  not in res.text:
+                                test = '.myfreecams.com/NxServer/ngrp:mfc_a_'
+                                playlisturl = 'https://' + videoser + test + models.get(model) + '.f4v_mobile/playlist.m3u8'
+                                res = request_get(playlisturl)
                             if res.status_code == 200 and status[model] == 0:
                                 print(model + ' is online')
                                 chunklist = dels(res.text.splitlines())
@@ -94,12 +106,10 @@ async def startup(uri):
                                     if 'chunklist' in s:
                                         strlist = s.split('_')
                                         if '256' in strlist[-1]:                                          
-                                            url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/'+ s
-                                            #url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_a_' + models.get(model) + '.f4v_mobile/'+ s
+                                            url = 'https://' + videoser + test + models.get(model) + '.f4v_mobile/'+ s
                                             break
                                         else:
-                                            url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_' + models.get(model) + '.f4v_mobile/'+ s
-                                            #url = 'https://' + videoser + '.myfreecams.com/NxServer/ngrp:mfc_a_' + models.get(model) + '.f4v_mobile/'+ s
+                                            url = 'https://' + videoser + test + models.get(model) + '.f4v_mobile/'+ s
                                 if 'http' in url:
                                     ol_model.put(model)
                                     ol_url.put(url)
@@ -123,7 +133,7 @@ def geturl(url,num):
         temp = dels(temp)
         for i in temp:
             currentnum = findnum(i)
-            if currentnum > num:
+            if currentnum > num and 10000 > currentnum:
                 k = url[0:url.rfind('/') + 1] + i               
                 downurl.put(k)
                 savenum.append(currentnum)
@@ -141,6 +151,7 @@ def dels(list):
 
 def maindown(url,model):
     print('准备下载'+model)
+    print(url)
     savenum = [0]
     sleepnum = 0
     filenum = []        
@@ -167,7 +178,7 @@ def maindown(url,model):
                     a = d.get_result()
                     filenum = filenum + a
             else:
-                if sleepnum == 5 and filenum:
+                if sleepnum == 7 and filenum:
                     print(model+'下载完成')
                     gLock.acquire()
                     status[model] = 0
@@ -182,14 +193,15 @@ def maindown(url,model):
                     result = os.system(cmd)
                     print(result)
                     del_file(file)
-                    request_post(model,'合并完成网址是mfc.lxgd.desifn/'+model+'/'+str(now) +'.ts')
+                    request_post(model,'合并完成网址是mfc.lxgd.design/'+model+'/'+str(now) +'.ts')
                     break
-                elif sleepnum == 5 and not filenum:
+                elif sleepnum == 7 and not filenum:
                     print('可能Temporarily Away')
                     break
                 else:
+                    print('数字为'+str(sleepnum))
                     sleepnum  = sleepnum + 1
-                    time.sleep(3)
+                    time.sleep(2)
     else:
         print('m3u8连接失败')        
 
@@ -227,9 +239,9 @@ def findnum(url):#获取TS链接的序号num
 
 def request_get(url):
     s = requests.Session()
-    s.mount('http://', HTTPAdapter(max_retries=3))
-    s.mount('https://', HTTPAdapter(max_retries=3))
-    r = s.get(url)
+    s.mount('http://', HTTPAdapter(max_retries=5))
+    s.mount('https://', HTTPAdapter(max_retries=5))
+    r = s.get(url, timeout=5)
     return r
 
 def request_post(model,text):#使用server酱推送微信
