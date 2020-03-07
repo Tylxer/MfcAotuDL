@@ -94,7 +94,7 @@ async def startup(uri):
                             test = '.myfreecams.com/NxServer/ngrp:mfc_1'
                             playlisturl = 'https://' + videoser + test + id + '.f4v_mobile/playlist.m3u8'
                             res = request_get(playlisturl,15,5)
-                            if 'http'  not in res.text:
+                            if 'm3u8?nc'  not in res.text:
                                 test = '.myfreecams.com/NxServer/ngrp:mfc_a_1'
                                 playlisturl = 'https://' + videoser + test + id + '.f4v_mobile/playlist.m3u8'
                                 res = request_get(playlisturl,15,5)
